@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Arabic slot machine</title>
+<style>
+div.content{width: 1020px;padding:50px;margin:0px auto;}
+div.wheel{width:50px;height:50px;border:1px solid #d3d3d3;font-size:24pt;text-align:center;cursor:pointer;}
+div#machine{overflow:hidden;height:51px;}
+a#add{margin-left:10px}
+</style>
+<link rel='stylesheet' href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+<body>
+  <div class='content'>
+    <h3>Arabic slot machine</h3>
+    <div class='row'><div id='machine'></div></div>
+    <div class='row' style='padding-top:5px'>
+      <button class='btn btn-primary' id='go'>Go</button>
+      <a id='add' href='#'>Add a letter</a>
+    </div>
+  </div>
+  <script src="bower_components/d3/d3.min.js"></script>
+  <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="bower_components/jquery-slotmachine/dist/jquery.slotmachine.min.js"></script>
+  <script>
+  var letters = 'ذ ض ص ث ق ف غ ع ه خ ح ج د ط ك ن ن ت ا ل ب ي س ش ئ ء ؤ ر ل ى ة و ز ظا'.split(' '),
+      N = letters.length,
+      machineContainer = d3.select('div#machine'),
+      button = d3.select('button#go');
+
+  // Initialize the machine with n wheels
+  function init(n){
+    // Clear the current wheels
+    machineContainer.selectAll('*').remove();
+
+    // Add the wheels
+    machineContainer.selectAll('.wheels')
+      .data(d3.range(n)).enter()
+      .append('div')
+      .attr('id', function(d){ return 'machineContainer' + d; })
+      .style('float', 'left')
+      .selectAll('.wheel')
+      .data(letters).enter()
+      .append('div')
+      .attr('class', 'wheel')
+      .text(function(d){ return d; });
+
+    // Initialize the machine
+    var machines = [];
+    d3.range(n).forEach(function(d){
+      machines.push($("div#machineContainer" + d).slotMachine({
+        active	: Math.floor(Math.random() * N),
+        delay	: 450
+      }));
+    });
+
+    button.on('click', function(){
+      machines.reverse().forEach(function(machine, i){
+        setTimeout(function(){ machine.shuffle(5); }, 500 * i);
+      });
+    });
+  }
+
+  // Initialize the slot machine with 2 wheels
+  var numWheels = 2;
+  init(numWheels);
+
+  // Click "add" to add a wheel
+  $('a#add').on('click', function(e){
+    e.preventDefault();
+    numWheels += 1;
+    init(numWheels);
+  });
+
+  </script>
